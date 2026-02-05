@@ -28,8 +28,19 @@ import os
 import re
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
+
+# Import shared error types
+sys.path.insert(0, str(Path(__file__).parent.parent))
+try:
+    from shared.errors import GitOperationError, FileOperationError
+except ImportError:
+    # Fallback if shared module not available
+    class GitOperationError(Exception):
+        pass
+    class FileOperationError(Exception):
+        pass
 
 # =============================================================================
 # Constants

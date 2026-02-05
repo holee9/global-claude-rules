@@ -82,7 +82,7 @@ def get_analytics_data() -> dict[str, Any]:
 
 
 def save_analytics_data(data: dict[str, Any]) -> None:
-    """Save analytics data to cache.
+    """Save analytics data to cache using atomic write pattern.
 
     Args:
         data: Analytics dictionary to save
@@ -91,10 +91,15 @@ def save_analytics_data(data: dict[str, Any]) -> None:
         ANALYTICS_FILE.parent.mkdir(parents=True, exist_ok=True)
         data["last_updated"] = datetime.now().isoformat()
 
-        ANALYTICS_FILE.write_text(
-            json.dumps(data, ensure_ascii=False, indent=2),
-            encoding="utf-8"
-        )
+        # Atomic write pattern: write to temp file, then replace
+        content = json.dumps(data, ensure_ascii=False, indent=2)
+        temp_file = ANALYTICS_FILE.with_suffix('.tmp')
+
+        temp_file.write_text(content, encoding="utf-8")
+
+        # Atomic replace (works on both Unix and Windows)
+        temp_file.replace(ANALYTICS_FILE)
+
     except (OSError, PermissionError) as e:
         logging.warning(f"Failed to save analytics data: {e}")
 

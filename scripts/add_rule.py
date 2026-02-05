@@ -116,6 +116,32 @@ def get_global_memory_path() -> Path:
     return get_claude_dir() / "memory.md"
 
 
+def verify_write_access(path: Path) -> tuple[bool, str]:
+    """Verify file can be written to target location.
+
+    Args:
+        path: Target file path
+
+    Returns:
+        Tuple of (success, error_message)
+    """
+    try:
+        # Ensure parent directory exists
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Test write access by creating a temporary file
+        test_file = path.parent / f".write_test_{os.getpid()}"
+        test_file.touch()
+        test_file.unlink()
+
+        return True, ""
+
+    except PermissionError as e:
+        return False, f"Permission denied: {e}"
+    except OSError as e:
+        return False, f"Cannot write to {path.parent}: {e}"
+
+
 def get_next_err_number(content: str) -> int:
     """Get the next available ERR number by parsing existing rules.
 
@@ -736,6 +762,12 @@ Examples:
         rule_data.get('quick_solution', rule_data['solution'][:50])
     )
 
+    # Verify write access before writing
+    can_write, error_msg = verify_write_access(template_path)
+    if not can_write:
+        print_error(f"Cannot write to template: {error_msg}")
+        return 1
+
     # Write template memory
     template_path.write_text(new_template_content, encoding="utf-8")
     print_success(f"Updated: {template_path}")
@@ -743,22 +775,29 @@ Examples:
     # Update global memory if it exists
     if global_path.exists():
         print_info("Updating global memory.md...")
-        global_content = global_path.read_text(encoding="utf-8")
 
-        new_global_content = insert_rule_into_content(
-            global_content,
-            rule_entry,
-            next_num
-        )
+        # Verify write access before writing
+        can_write, error_msg = verify_write_access(global_path)
+        if not can_write:
+            print_warning(f"Cannot write to global memory: {error_msg}")
+            print_info("Skipping global memory update")
+        else:
+            global_content = global_path.read_text(encoding="utf-8")
 
-        new_global_content = update_quick_reference_table(
-            new_global_content,
-            next_num,
-            rule_data['title'],
-            rule_data.get('quick_solution', rule_data['solution'][:50])
-        )
+            new_global_content = insert_rule_into_content(
+                global_content,
+                rule_entry,
+                next_num
+            )
 
-        global_path.write_text(new_global_content, encoding="utf-8")
+            new_global_content = update_quick_reference_table(
+                new_global_content,
+                next_num,
+                rule_data['title'],
+                rule_data.get('quick_solution', rule_data['solution'][:50])
+            )
+
+            global_path.write_text(new_global_content, encoding="utf-8")
         print_success(f"Updated: {global_path}")
 
     # Create git commit
