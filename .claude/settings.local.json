@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(env:*)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(powershell:*)",
+      "Bash(git -C D:/global-claude-rules log --oneline --all -20)",
+      "Bash(git -C D:/global-claude-rules status)",
+      "Bash($newContent = $content -replace $pattern, $replacement)",
+      "Bash($newContent)",
+      "Bash(Set-Content 'C:\\\\Users\\\\drake.lee\\\\.claude\\\\memory.md' -NoNewline)",
+      "Bash(\")"
+    ]
+  }
+}
