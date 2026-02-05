@@ -502,6 +502,69 @@ def create_git_commit(err_num: int, title: str) -> bool:
         return False
 
 
+def auto_push_rules(dry_run: bool = False) -> bool:
+    """Automatically push rule changes to remote repository.
+
+    Args:
+        dry_run: If True, only simulate the push
+
+    Returns:
+        True if push successful or not needed, False otherwise
+    """
+    try:
+        # Check if we're in a git repository
+        result = subprocess.run(
+            ["git", "rev-parse", "--git-dir"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        if result.returncode != 0:
+            return False  # Not a git repo
+
+        # Check if remote exists
+        result = subprocess.run(
+            ["git", "remote", "get-url", "origin"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        if result.returncode != 0:
+            print_info("No git remote configured - skipping push")
+            return True  # Not an error, just no remote
+
+        if dry_run:
+            print_info("Would push to remote (dry-run)")
+            return True
+
+        print_info("Pushing to remote...")
+        result = subprocess.run(
+            ["git", "push"],
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+
+        if result.returncode == 0:
+            print_success("Pushed to remote successfully")
+            return True
+
+        # Handle specific errors
+        if "unable to access" in result.stderr or "could not connect" in result.stderr:
+            print_warning("Network error - changes committed locally only")
+        elif "rejected" in result.stderr:
+            print_warning("Push rejected - changes committed locally only")
+            print_info("Run 'git pull' then 'git push' to sync")
+        else:
+            print_warning(f"Push failed: {result.stderr[-100:]}")
+
+        return True  # Commit succeeded even if push failed
+
+    except (subprocess.TimeoutExpired, FileNotFoundError, OSError) as e:
+        print_warning(f"Push operation failed: {e}")
+        return True  # Commit succeeded even if push failed
+
+
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
@@ -556,6 +619,11 @@ Examples:
         "--no-commit",
         action="store_true",
         help="Skip git commit creation"
+    )
+    parser.add_argument(
+        "--no-push",
+        action="store_true",
+        help="Skip automatic git push after commit"
     )
     parser.add_argument(
         "--dry-run",
@@ -695,7 +763,10 @@ Examples:
 
     # Create git commit
     if not args.no_commit:
-        create_git_commit(next_num, rule_data['title'])
+        if create_git_commit(next_num, rule_data['title']):
+            # Auto-push after successful commit
+            if not args.no_push:
+                auto_push_rules(args.dry_run)
 
     print_header("Rule Added Successfully")
     print_success(f"ERR-{next_num:03d}: {rule_data['title']}")

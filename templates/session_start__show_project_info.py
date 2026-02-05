@@ -113,6 +113,8 @@ RISK_SPEC_MEDIUM = 8
 RISK_TEST_FAILED = 12
 RISK_COVERAGE_UNKNOWN = 5
 SETUP_MESSAGE_RESCAN_DAYS = 7
+AUTO_SYNC_INTERVAL_DAYS = 7
+AUTO_SYNC_CACHE_FILE = Path.home() / ".claude" / "cache" / "auto_sync.json"
 
 # =============================================================================
 # Setup import path for shared modules
@@ -784,6 +786,111 @@ def get_global_memory_summary() -> str:
     return "\n".join(output_lines) if output_lines else ""
 
 
+def get_last_auto_sync_time() -> datetime | None:
+    """Get the last successful auto-sync time from cache.
+
+    Returns:
+        Last sync datetime or None
+    """
+    if AUTO_SYNC_CACHE_FILE.exists():
+        try:
+            cache_data = json.loads(AUTO_SYNC_CACHE_FILE.read_text(encoding="utf-8", errors="replace"))
+            last_sync = cache_data.get("last_sync")
+            if last_sync:
+                return datetime.fromisoformat(last_sync)
+        except (json.JSONDecodeError, ValueError):
+            pass
+    return None
+
+
+def save_auto_sync_time() -> None:
+    """Save current time as last auto-sync time."""
+    try:
+        AUTO_SYNC_CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        cache_data = {
+            "last_sync": datetime.now().isoformat(),
+            "project_root": str(find_project_root()),
+        }
+        AUTO_SYNC_CACHE_FILE.write_text(
+            json.dumps(cache_data, ensure_ascii=False, indent=2),
+            encoding="utf-8"
+        )
+    except (OSError, PermissionError):
+        pass
+
+
+def should_auto_sync() -> bool:
+    """Check if auto-sync should run based on time interval.
+
+    Returns:
+        True if enough time has passed since last sync
+    """
+    last_sync = get_last_auto_sync_time()
+    if not last_sync:
+        return True
+
+    days_since = (datetime.now() - last_sync).days
+    return days_since >= AUTO_SYNC_INTERVAL_DAYS
+
+
+def background_auto_sync() -> None:
+    """Perform background auto-sync of rules.
+
+    This function runs git pull in the background to update rules.
+    It gracefully handles failures and doesn't block session start.
+    """
+    try:
+        import threading
+
+        def sync_in_background():
+            try:
+                project_root = find_project_root()
+                os.chdir(project_root)
+
+                # Check if we're in a git repo with remote
+                result = subprocess.run(
+                    ["git", "remote", "get-url", "origin"],
+                    capture_output=True,
+                    timeout=5
+                )
+                if result.returncode != 0:
+                    return  # No remote configured
+
+                # Check if there are remote changes
+                subprocess.run(
+                    ["git", "fetch", "origin"],
+                    capture_output=True,
+                    timeout=30
+                )
+
+                result = subprocess.run(
+                    ["git", "rev-list", "--left-right", "--count", "HEAD...@{u}"],
+                    capture_output=True,
+                    timeout=5
+                )
+
+                if result.returncode == 0:
+                    behind, _ = result.stdout.strip().split("\t")
+                    if int(behind) > 0:
+                        # Has remote changes, pull with rebase
+                        subprocess.run(
+                            ["git", "pull", "--rebase", "-X", "ours", "origin"],
+                            capture_output=True,
+                            timeout=60
+                        )
+                        save_auto_sync_time()
+
+            except (subprocess.TimeoutExpired, FileNotFoundError, OSError, ValueError):
+                pass  # Silent failure - don't interrupt session
+
+        # Start background thread
+        thread = threading.Thread(target=sync_in_background, daemon=True)
+        thread.start()
+
+    except ImportError:
+        pass
+
+
 def format_session_output() -> str:
     """Format the complete session start output."""
     git_info = get_git_info()
@@ -860,6 +967,10 @@ def main() -> None:
     def execute_session_start():
         input_data = sys.stdin.read() if not sys.stdin.isatty() else "{}"
         _ = json.loads(input_data) if input_data.strip() else {}
+
+        # Background auto-sync if needed
+        if should_auto_sync():
+            background_auto_sync()
 
         show_messages = should_show_setup_messages()
         session_output = format_session_output() if show_messages else ""

@@ -12,6 +12,7 @@ Features:
 - Shows command-related rules for Bash operations
 - Shows agent-related rules for Task operations
 - Keyword-based matching to surface contextually relevant rules
+- Project-type filtering for improved relevance
 """
 
 from __future__ import annotations
@@ -26,11 +27,27 @@ from typing import Any
 
 
 # =============================================================================
+# Setup import path for shared modules
+# =============================================================================
+HOOKS_DIR = Path(__file__).parent
+LIB_DIR = HOOKS_DIR / "lib"
+if str(LIB_DIR) not in sys.path:
+    sys.path.insert(0, str(LIB_DIR))
+
+
+# =============================================================================
 # Constants
 # =============================================================================
 # Global memory path
 DEFAULT_GLOBAL_MEMORY_PATH = Path.home() / ".claude" / "memory.md"
 PROJECT_MEMORY_PATH = Path.cwd() / ".claude" / "memory.md"
+
+# Try to import project detector
+try:
+    from project_detector import detect_project_type, get_relevant_rules_for_project
+    HAS_PROJECT_DETECTOR = True
+except ImportError:
+    HAS_PROJECT_DETECTOR = False
 
 # Tool to ERR rule keyword mapping
 TOOL_KEYWORDS = {
@@ -190,6 +207,14 @@ def find_relevant_rules(
     relevant_rules = []
     tool_input_str = json.dumps(tool_input, case_sensitive=False).lower()
 
+    # Get project-specific rule IDs if detector is available
+    project_rule_ids = []
+    if HAS_PROJECT_DETECTOR:
+        try:
+            project_rule_ids = get_relevant_rules_for_project()
+        except Exception:
+            pass
+
     # Get keywords for this tool
     keywords = TOOL_KEYWORDS.get(tool_name, [])
 
@@ -244,6 +269,18 @@ def find_relevant_rules(
             subagent = tool_input['subagent_type'].lower()
             if subagent in rule_text:
                 score += 3
+
+        # Project-type relevance boost
+        if project_rule_ids and rule['id'] in project_rule_ids:
+            score += 8  # High boost for project-relevant rules
+
+        # Track analytics for this rule view
+        if score > 0:
+            try:
+                from rule_analytics import track_rule_view
+                track_rule_view(rule['id'], context=f"pre_tool:{tool_name}")
+            except ImportError:
+                pass
 
         # Only include rules with a score
         if score > 0:
