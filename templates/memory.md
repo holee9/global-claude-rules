@@ -1,8 +1,8 @@
 # Global Development Memory - MANDATORY RULES
 
-**Last Updated**: {{DATE}}
+**Last Updated**: 2026-02-05
 **Scope**: All Projects (Global)
-**Version**: {{VERSION}}
+**Version**: 1.5
 
 ---
 
@@ -229,21 +229,14 @@ Before starting work, read:
 ### ERR-023: UTF-16 File Edit Failure
 **Problem**: Edit tool fails with "String to replace not found" on RC/RES files
 **Root Cause**: Windows resource files use UTF-16 LE encoding, Edit tool expects UTF-8
-**Solution**:
-  1. Check encoding: file properties or `file -b filename.rc` (if available)
-  2. For UTF-16 files, use PowerShell:
-     ```bash
-     powershell -Command "$lines = Get-Content 'file.rc' -Encoding Unicode; $lines | ForEach-Object { $_ -replace 'old', 'new' } | Set-Content 'file.rc' -Encoding Unicode"
-     ```
+**Solution**: Check encoding first, for UTF-16 files use PowerShell: `powershell -Command "$lines = Get-Content 'file.rc' -Encoding Unicode; $lines | ForEach-Object { $_ -replace 'old', 'new' } | Set-Content 'file.rc' -Encoding Unicode"`
 **Prevention**: Before Edit tool, verify file is UTF-8 encoded. For .rc, .res, .config files common in Windows C++ projects, assume UTF-16 and use PowerShell.
 **Date**: 2026-02-05
-**Category**: Build/Compilation
+**Category**: System/File Operations (ERR-001~ERR-099)
 ### ERR-024: Hook Directory Not Found - PreToolUse/PostToolUse Failure
 **Problem**: Hook execution fails with error: PreToolUse:Write hook error: Failed to spawn - Path not found
 **Root Cause**: .claude/hooks/moai/ directory does not exist in project
-**Solution**:
-  1. Run install script: python scripts/install.py --force
-  2. Or manually copy: cp -r ~/.claude/hooks/moai .claude/hooks/
+**Solution**: Run install script: `python scripts/install.py --force` or manually copy hooks from ~/.claude/hooks/moai to .claude/hooks/
 **Prevention**: Always run install.py after cloning moai-adk projects
 **Date**: 2026-02-05
 **Project**: global-claude-rules
@@ -303,6 +296,7 @@ Before starting work, read:
 | ERR-016 | Hash not comment | Use `//` |
 | ERR-022 | Command not followed | Verify instruction before execute |
 | ERR-023 | UTF-16 file edit fails | Use PowerShell for .rc/.res files |
+| ERR-024 | Hook directory not found | Run install.py --force |
 | ERR-600 | OnInitDialog control access | Use OnDelayedInit |
 | ERR-601 | DLL architecture mismatch | Use x64 DLLs |
 | ERR-602 | Uninitialized CFile | Initialize or declare in scope |

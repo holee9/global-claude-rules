@@ -389,7 +389,7 @@ Examples:
 
     # Show version
     if args.version:
-        print("Global Claude Rules Installer v1.0.0")
+        print("Global Claude Rules Installer v1.5.0")
         return 0
 
     # Setup colors
@@ -410,7 +410,7 @@ Examples:
     # Template variables
     variables = {
         "DATE": datetime.now().strftime("%Y-%m-%d"),
-        "VERSION": "1.4",
+        "VERSION": "1.5",
         "USER_HOME": str(get_home_dir()),
     }
 
