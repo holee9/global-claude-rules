@@ -7,6 +7,16 @@ pyyaml>=6.0,<7.0
 pytest>=7.0
 pytest-cov>=4.0
 
+# Semantic Rule Matching Dependencies
+# Core embedding and vector search
+sentence-transformers>=2.3.0
+faiss-cpu>=1.7.4
+numpy>=1.24.0
+
+# Optional GPU acceleration (uncomment if CUDA is available)
+# sentence-transformers[gpu]>=2.3.0  # Requires CUDA
+# faiss-gpu>=1.7.4                 # Requires CUDA
+
 # Development tools (optional)
 # pylint>=3.0
 # mypy>=1.0

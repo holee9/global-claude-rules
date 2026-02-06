@@ -7,12 +7,13 @@ Purpose: Display relevant ERR-XXX rules before executing tools
 Execution: Triggered before Write, Edit, Bash, and Task tools
 
 Features:
-- Detects relevant ERR rules based on tool type and parameters
+- Semantic similarity matching using sentence-transformers
+- Automatic fallback to keyword-based matching
 - Shows file-related rules for Write/Edit operations
 - Shows command-related rules for Bash operations
 - Shows agent-related rules for Task operations
-- Keyword-based matching to surface contextually relevant rules
 - Project-type filtering for improved relevance
+- Vector caching for fast initialization
 """
 
 from __future__ import annotations
@@ -48,6 +49,20 @@ try:
     HAS_PROJECT_DETECTOR = True
 except ImportError:
     HAS_PROJECT_DETECTOR = False
+
+# Try to import semantic matcher (with graceful fallback)
+try:
+    from semantic_matcher import (
+        SemanticRuleMatcher,
+        find_relevant_rules_semantic,
+        HAS_SEMANTIC,
+    )
+    HAS_SEMANTIC_MATCHING = HAS_SEMANTIC
+except ImportError:
+    HAS_SEMANTIC_MATCHING = False
+
+# Global matcher instance (initialized lazily)
+_semantic_matcher: Any | None = None
 
 # Tool to ERR rule keyword mapping
 TOOL_KEYWORDS = {
@@ -196,6 +211,67 @@ def find_relevant_rules(
 ) -> list[dict]:
     """Find relevant rules based on tool and input.
 
+    Uses semantic matching if available, with automatic fallback to
+    keyword-based matching for backward compatibility.
+
+    Args:
+        rules: All available rules
+        tool_name: Name of the tool being called
+        tool_input: Input parameters for the tool
+
+    Returns:
+        List of relevant rules sorted by relevance
+    """
+    global _semantic_matcher
+
+    # Try semantic matching first
+    if HAS_SEMANTIC_MATCHING:
+        try:
+            # Initialize matcher on first use
+            if _semantic_matcher is None:
+                _semantic_matcher = SemanticRuleMatcher()
+                _semantic_matcher.initialize(rules)
+
+            # Perform semantic matching
+            results = _semantic_matcher.match(tool_name, tool_input)
+
+            if results:
+                # Add project-type boost if detector is available
+                if HAS_PROJECT_DETECTOR:
+                    try:
+                        project_rule_ids = get_relevant_rules_for_project()
+                        for rule in results:
+                            if rule['id'] in project_rule_ids:
+                                rule['relevance_score'] = rule.get('relevance_score', 0) + 8
+                        # Re-sort after boost
+                        results.sort(key=lambda r: r.get('relevance_score', 0), reverse=True)
+                    except Exception:
+                        pass
+
+                # Track analytics for viewed rules
+                try:
+                    from rule_analytics import track_rule_view
+                    for rule in results[:5]:  # Track top 5
+                        track_rule_view(rule['id'], context=f"pre_tool:{tool_name}")
+                except ImportError:
+                    pass
+
+                return results
+
+        except Exception as e:
+            logging.warning(f"Semantic matching failed: {e}, using keyword fallback")
+
+    # Fallback to keyword-based matching
+    return find_relevant_rules_keyword(rules, tool_name, tool_input)
+
+
+def find_relevant_rules_keyword(
+    rules: list[dict],
+    tool_name: str,
+    tool_input: dict,
+) -> list[dict]:
+    """Find relevant rules using keyword-based matching (original implementation).
+
     Args:
         rules: All available rules
         tool_name: Name of the tool being called
@@ -284,7 +360,9 @@ def find_relevant_rules(
 
         # Only include rules with a score
         if score > 0:
+            rule = dict(rule)  # Copy to avoid mutating original
             rule['relevance_score'] = score
+            rule['match_type'] = 'keyword'
             relevant_rules.append(rule)
 
     # Sort by relevance score
