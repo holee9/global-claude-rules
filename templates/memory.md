@@ -1,8 +1,8 @@
 # Global Development Memory - MANDATORY RULES
 
-**Last Updated**: 2026-02-05
+**Last Updated**: 2026-02-06
 **Scope**: All Projects (Global)
-**Version**: 1.5
+**Version**: 1.6
 
 ---
 
@@ -242,6 +242,36 @@ Before starting work, read:
 **Project**: global-claude-rules
 **Category**: System/Configuration (ERR-001~099)
 
+### ERR-025: Python SyntaxError - unicodeescape in Docstring
+
+**Problem**: Python SyntaxError: (unicode error) 'unicodeescape' codec can't decode bytes in position 103-104: truncated \UXXXXXXXX escape
+**Root Cause**: Backslashes in docstring treated as escape sequences (e.g., `\U` in Windows paths like `C:\Users\...`)
+**Solution**: Use raw string prefix `r"""` for docstrings containing backslashes
+**Prevention**: Always use raw strings (`r"""` or `r''`) for Windows paths or strings with backslashes in docstrings
+**Date**: 2026-02-06
+**Project**: global-claude-rules
+**Category**: System/Python (ERR-001~099)
+
+### ERR-026: Missing Import in Test File
+
+**Problem**: NameError: name 'patch' is not defined when running tests
+**Root Cause**: Test uses `unittest.mock.patch` but doesn't import it at module level
+**Solution**: Add `from unittest.mock import patch` to imports section
+**Prevention**: When adding tests that use mock decorators, always verify imports include required mock functions
+**Date**: 2026-02-06
+**Project**: global-claude-rules
+**Category**: System/Testing (ERR-001~099)
+
+### ERR-027: Test Assertion Mismatch with Function Output
+
+**Problem**: AssertionError: expected string not found in function return value
+**Root Cause**: Test expects exact substring match but function returns formatted output (e.g., expects "001~099" but gets "General/System errors (ERR-001~ERR-099)")
+**Solution**: Update test assertions to match actual function output, or test for components separately
+**Prevention**: Write tests based on actual function behavior, not assumed output format
+**Date**: 2026-02-06
+**Project**: global-claude-rules
+**Category**: System/Testing (ERR-001~099)
+
  (ERR-200~ERR-299)
 
 ---
@@ -297,6 +327,9 @@ Before starting work, read:
 | ERR-022 | Command not followed | Verify instruction before execute |
 | ERR-023 | UTF-16 file edit fails | Use PowerShell for .rc/.res files |
 | ERR-024 | Hook directory not found | Run install.py --force |
+| ERR-025 | unicodeescape SyntaxError | Use raw string r""" |
+| ERR-026 | Missing test import | Add from unittest.mock import patch |
+| ERR-027 | Test assertion mismatch | Update to match actual output |
 | ERR-600 | OnInitDialog control access | Use OnDelayedInit |
 | ERR-601 | DLL architecture mismatch | Use x64 DLLs |
 | ERR-602 | Uninitialized CFile | Initialize or declare in scope |
