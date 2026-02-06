@@ -205,7 +205,7 @@ def find_relevant_rules(
         List of relevant rules sorted by relevance
     """
     relevant_rules = []
-    tool_input_str = json.dumps(tool_input, case_sensitive=False).lower()
+    tool_input_str = json.dumps(tool_input).lower()
 
     # Get project-specific rule IDs if detector is available
     project_rule_ids = []
