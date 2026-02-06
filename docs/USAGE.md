@@ -255,10 +255,10 @@ python scripts/update.py
 
 ```bash
 # 원격 저장소 추가
-git remote add origin https://github.com/YOUR-USERNAME/global-claude-rules.git
+git remote add origin https://github.com/holee9/global-claude-rules.git
 
 # 또는 변경
-git remote set-url origin https://github.com/YOUR-USERNAME/global-claude-rules.git
+git remote set-url origin https://github.com/holee9/global-claude-rules.git
 ```
 
 ---

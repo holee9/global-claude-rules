@@ -29,7 +29,7 @@
 
 ### 3. 버그 신고
 
-[GitHub Issues](https://github.com/YOUR-USERNAME/global-claude-rules/issues)에서 버그를 신고하세요.
+[GitHub Issues](https://github.com/holee9/global-claude-rules/issues)에서 버그를 신고하세요.
 
 ### 4. 문서 개선
 
@@ -121,7 +121,7 @@
 ```bash
 # GitHub에서 저장소 포크
 # 그 후 클론
-git clone https://github.com/YOUR-USERNAME/global-claude-rules.git
+git clone https://github.com/holee9/global-claude-rules.git
 cd global-claude-rules
 ```
 
@@ -328,11 +328,11 @@ MAJOR.MINOR.PATCH
 
 ### 이슈 제출
 
-버그 신고나 기능 요청은 [GitHub Issues](https://github.com/YOUR-USERNAME/global-claude-rules/issues)를 이용하세요.
+버그 신고나 기능 요청은 [GitHub Issues](https://github.com/holee9/global-claude-rules/issues)를 이용하세요.
 
 ### 토의
 
-질문이 있으면 [Discussions](https://github.com/YOUR-USERNAME/global-claude-rules/discussions)를 이용하세요.
+질문이 있으면 [Discussions](https://github.com/holee9/global-claude-rules/discussions)를 이용하세요.
 
 ### 코드 리뷰
 

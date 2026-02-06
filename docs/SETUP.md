@@ -47,7 +47,7 @@ python3 --version
 
 ```bash
 # 1. 저장소 복제
-git clone https://github.com/YOUR-USERNAME/global-claude-rules.git
+git clone https://github.com/holee9/global-claude-rules.git
 cd global-claude-rules
 
 # 2. 설치 스크립트 실행

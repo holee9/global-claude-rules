@@ -5,7 +5,7 @@ All notable changes to the Global Claude Rules System will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.6.0] - 2026-02-06
 
 ### Added
 - Semantic Rule Matching System (v1.6.0)
@@ -17,14 +17,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `docs/API.md` - Semantic matching API documentation
 - GPU acceleration support for CUDA environments
 - Multilingual model support (paraphrase-multilingual-mpnet-base-v2)
+- Comprehensive documentation:
+  - README.md with badges and quick start guide
+  - SETUP.md with detailed installation instructions
+  - USAGE.md with CLI tool reference
+  - CONTRIBUTING.md with submission guidelines
+  - API.md with technical documentation
+- MIT LICENSE file for open source distribution
+- CHANGELOG.md for version tracking
 
 ### Changed
 - README.md updated with semantic matching feature documentation
 - Project structure updated to include semantic matching modules
 - Hook system integrated with semantic matching
+- Updated all placeholder GitHub URLs to actual repository (holee9/global-claude-rules)
+- Version updated to 1.6.0
 
 ### Fixed
 - ERR-024: Hook Directory Not Found - added to template
+- ERR-025: Python SyntaxError unicodeescape in docstring
+- ERR-026: Missing import in test files
+- ERR-027: Test assertion mismatch with function output
+- scripts/install.py: Fixed unicodeescape SyntaxError (raw string docstring)
+- tests/: Fixed test assertions and missing imports
 
 ### Performance
 - Rule matching accuracy improved by 60-80% with semantic search

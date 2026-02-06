@@ -5,7 +5,7 @@
 > 모든 프로젝트, 모든 개발자, 모든 PC에서 동일한 에러 방지 규칙을 자동으로 적용합니다.
 
 [![Tests](https://img.shields.io/badge/tests-68%20passing-brightgreen)](tests/)
-[![Version](https://img.shields.io/badge/version-1.6.0-blue)](https://github.com/YOUR-USERNAME/global-claude-rules)
+[![Version](https://img.shields.io/badge/version-1.6.0-blue)](https://github.com/holee9/global-claude-rules)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.12+-blue)](https://python.org)
 
@@ -78,7 +78,7 @@ v1.6.0부터 도구 실행 전 관련 규칙을 **시맨틱 유사도 기반으�
 ### 1단계: 저장소 복제
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/global-claude-rules.git
+git clone https://github.com/holee9/global-claude-rules.git
 cd global-claude-rules
 ```
 
@@ -421,8 +421,8 @@ SOFTWARE.
 
 ## 링크
 
-- **GitHub**: https://github.com/YOUR-USERNAME/global-claude-rules
-- **Issues**: https://github.com/YOUR-USERNAME/global-claude-rules/issues
+- **GitHub**: https://github.com/holee9/global-claude-rules
+- **Issues**: https://github.com/holee9/global-claude-rules/issues
 - **문서**: [docs/](docs/)
 
 ---
