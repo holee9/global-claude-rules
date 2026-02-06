@@ -259,7 +259,7 @@ def install_hooks_directory(
     dry_run: bool = False,
     force: bool = False,
 ) -> bool:
-    """Install entire hooks directory from global Claude config to project.
+    r"""Install entire hooks directory from global Claude config to project.
 
     This copies all hooks from C:\Users\USERNAME\.claude\hooks\moai\ to
     the project's .claude/hooks/moai\ directory. This ensures projects

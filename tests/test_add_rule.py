@@ -91,15 +91,40 @@ class TestAddRule(unittest.TestCase):
         except ImportError:
             self.skipTest("add_rule.py not available")
 
-        self.assertIn("001~099", get_category_for_number(1))
-        self.assertIn("001~099", get_category_for_number(99))
-        self.assertIn("100~199", get_category_for_number(100))
-        self.assertIn("100~199", get_category_for_number(150))
-        self.assertIn("200~299", get_category_for_number(200))
-        self.assertIn("300~399", get_category_for_number(300))
-        self.assertIn("400~499", get_category_for_number(400))
-        self.assertIn("500~599", get_category_for_number(500))
-        self.assertIn("600~699", get_category_for_number(600))
+        # Test that the function returns the expected category descriptions
+        result_001 = get_category_for_number(1)
+        self.assertIn("General/System errors", result_001)
+        self.assertIn("ERR-001~ERR-099", result_001)
+
+        result_099 = get_category_for_number(99)
+        self.assertIn("General/System errors", result_099)
+
+        result_100 = get_category_for_number(100)
+        self.assertIn("Git/Version control errors", result_100)
+        self.assertIn("ERR-100~ERR-199", result_100)
+
+        result_150 = get_category_for_number(150)
+        self.assertIn("Git/Version control errors", result_150)
+
+        result_200 = get_category_for_number(200)
+        self.assertIn("Build/Compilation errors", result_200)
+        self.assertIn("ERR-200~ERR-299", result_200)
+
+        result_300 = get_category_for_number(300)
+        self.assertIn("FPGA/Hardware errors", result_300)
+        self.assertIn("ERR-300~ERR-399", result_300)
+
+        result_400 = get_category_for_number(400)
+        self.assertIn("Backend/API errors", result_400)
+        self.assertIn("ERR-400~ERR-499", result_400)
+
+        result_500 = get_category_for_number(500)
+        self.assertIn("Frontend/UI errors", result_500)
+        self.assertIn("ERR-500~ERR-599", result_500)
+
+        result_600 = get_category_for_number(600)
+        self.assertIn("MFC/Win32 errors", result_600)
+        self.assertIn("ERR-600~ERR-699", result_600)
 
     def test_validate_rule_fields_valid(self):
         """Test validation with valid fields."""
@@ -248,13 +273,10 @@ class TestAddRuleCLI(unittest.TestCase):
             '--prevention', 'Prevention'
         ]):
             # Should fail because --problem is missing
-            with patch('sys.exit') as mock_exit:
-                try:
-                    main()
-                except SystemExit:
-                    pass
-                # Exit code should be 1 for error
-                mock_exit.assert_called_with(1)
+            # main() returns 1 on error, doesn't call sys.exit(1)
+            result = main()
+            # Return code should be 1 for error
+            self.assertEqual(result, 1)
 
     def test_dry_run_mode(self):
         """Test dry-run mode doesn't modify files."""

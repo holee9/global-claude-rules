@@ -15,6 +15,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 # Add scripts directory to path
@@ -353,13 +354,10 @@ class TestValidateRulesCLI(unittest.TestCase):
         non_existent = Path(self.temp_dir) / "does_not_exist.md"
 
         with patch('sys.argv', ['validate_rules.py', '--file', str(non_existent)]):
-            with patch('sys.exit') as mock_exit:
-                try:
-                    main()
-                except SystemExit:
-                    pass
-                # Should exit with code 2 for file not found
-                mock_exit.assert_called_with(2)
+            # main() returns 2 for file not found error
+            result = main()
+            # Should return 2 for file not found
+            self.assertEqual(result, 2)
 
     def test_validate_valid_file(self):
         """Test validation of a valid file."""
@@ -384,13 +382,10 @@ class TestValidateRulesCLI(unittest.TestCase):
             self.skipTest("validate_rules.py not available")
 
         with patch('sys.argv', ['validate_rules.py', '--file', str(self.test_memory)]):
-            with patch('sys.exit') as mock_exit:
-                try:
-                    main()
-                except SystemExit:
-                    pass
-                # Should exit with code 0 for valid file
-                mock_exit.assert_called_with(0)
+            # main() returns 0 for valid file
+            result = main()
+            # Should return 0 for valid file
+            self.assertEqual(result, 0)
 
 
 if __name__ == "__main__":

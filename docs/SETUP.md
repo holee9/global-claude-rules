@@ -1,31 +1,34 @@
 # 설치 가이드 (Setup Guide)
 
-Global Claude Rules System을 처음 설치하는 경우 이 가이드를 따르세요.
+**Version**: 1.6.0
+**Last Updated**: 2026-02-06
 
 ---
 
-## 📋 목차
+## Table of Contents
 
-1. [사전 요구사항](#사전-요구사항)
+1. [시스템 요구사항](#시스템-요구사항)
 2. [설치 방법](#설치-방법)
-3. [환경별 설치](#환경별-설치)
-4. [설치 검증](#설치-검증)
-5. [환경 변수 설정](#환경-변수-설정)
+3. [검증](#검증)
+4. [환경 변수 설정](#환경-변수-설정)
+5. [선택적 기능](#선택적-기능)
 6. [문제 해결](#문제-해결)
 
 ---
 
-## 사전 요구사항
+## 시스템 요구사항
 
 ### 필수 요구사항
 
-| 요구사항 | Windows | Linux/macOS |
-|----------|---------|-------------|
-| Python | 3.7+ | 3.7+ |
-| Git | 최신 버전 | 최신 버전 |
-| Claude Code | 설치됨 | 설치됨 |
+| 요구사항 | 최소 사양 | 권장 사양 |
+|---------|----------|----------|
+| Python | 3.10+ | 3.12+ |
+| OS | Windows 10+, Linux, macOS | 최신 LTS |
+| Claude Code | 최신 버전 | 최신 버전 |
+| Git | 2.0+ | 2.30+ |
+| 디스크 공간 | 50MB | 100MB |
 
-### 설치 확인
+### Python 확인
 
 ```bash
 # Python 버전 확인
@@ -33,396 +36,276 @@ python --version
 # 또는
 python3 --version
 
-# Git 버전 확인
-git --version
+# 3.10 이상이어야 합니다
 ```
 
 ---
 
 ## 설치 방법
 
-### 방법 1: 자동 설치 (권장)
-
-#### 1단계: 저장소 복제
+### 방법 1: 저장소 복제 후 설치 (권장)
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/global-claude-rules.git
-cd global-claude-rules
-```
-
-#### 2단계: 설치 스크립트 실행
-
-**Windows (PowerShell):**
-```powershell
-# 실행 정책 확인
-Get-ExecutionPolicy
-
-# 실행 정책이 Restricted인 경우
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-
-# 설치 스크립트 실행
-.\scripts\install.ps1
-```
-
-**Linux/macOS:**
-```bash
-# 설치 스크립트 실행
-python3 scripts/install.py
-
-# 또는 python 명령어가 다른 경우
-python scripts/install.py
-```
-
-#### 3단계: 설치 완료 확인
-
-```
-✓ Installed: C:\Users\[user]\.claude\memory.md
-✓ Installed: C:\Users\[user]\.claude\hooks\moai\session_start__show_project_info.py
-✓ Installed: C:\Users\[user]\.claude\GLOBAL_RULES_GUIDE.md
-
-Installation completed successfully!
-```
-
----
-
-### 방법 2: 수동 설치
-
-자동 설치가 실패하는 경우 수동으로 설치하세요.
-
-#### 1단계: 디렉토리 생성
-
-**Windows:**
-```powershell
-# PowerShell에서 실행
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\hooks\moai"
-```
-
-**Linux/macOS:**
-```bash
-# Bash에서 실행
-mkdir -p ~/.claude/hooks/moai
-```
-
-#### 2단계: 파일 복사
-
-**templates/memory.md → ~/.claude/memory.md**
-
-**Windows:**
-```powershell
-Copy-Item templates\memory.md $env:USERPROFILE\.claude\memory.md
-```
-
-**Linux/macOS:**
-```bash
-cp templates/memory.md ~/.claude/memory.md
-```
-
-**templates/session_start__show_project_info.py → ~/.claude/hooks/moai/**
-
-**Windows:**
-```powershell
-Copy-Item templates\session_start__show_project_info.py $env:USERPROFILE\.claude\hooks\moai\
-```
-
-**Linux/macOS:**
-```bash
-cp templates/session_start__show_project_info.py ~/.claude/hooks/moai/
-```
-
----
-
-## 환경별 설치
-
-### Windows
-
-#### PowerShell 사용
-
-```powershell
 # 1. 저장소 복제
 git clone https://github.com/YOUR-USERNAME/global-claude-rules.git
 cd global-claude-rules
 
-# 2. 설치
-.\scripts\install.ps1
-
-# 3. 확인
-Get-ChildItem $env:USERPROFILE\.claude
+# 2. 설치 스크립트 실행
+python scripts/install.py
 ```
 
-#### CMD 사용
+### 방법 2: ZIP 다운로드 후 설치
 
-```cmd
-REM 1. 저장소 복제
-git clone https://github.com/YOUR-USERNAME/global-claude-rules.git
-cd global-claude-rules
-
-REM 2. 설치 (Python 필요)
-python scripts\install.py
-```
-
-#### WSL (Windows Subsystem for Linux)
+1. GitHub에서 ZIP 다운로드
+2. 압축 해제
+3. 디렉토리에서 설치 스크립트 실행
 
 ```bash
-# WSL에서 Linux용 설치 방법 따르기
-git clone https://github.com/YOUR-USERNAME/global-claude-rules.git
 cd global-claude-rules
-python3 scripts/install.py
+python scripts/install.py
 ```
 
-### Linux
-
-#### Ubuntu/Debian
+### 설치 옵션
 
 ```bash
-# 1. 의존성 설치
-sudo apt update
-sudo apt install python3 python3-pip git
+# 기본 설치 (대화형)
+python scripts/install.py
 
-# 2. 저장소 복제
-git clone https://github.com/YOUR-USERNAME/global-claude-rules.git
-cd global-claude-rules
+# 강제 설치 (프롬프트 건너뛰기)
+python scripts/install.py --force
 
-# 3. 설치
-python3 scripts/install.py
+# 드라이런 (설치하지 않고 확인만)
+python scripts/install.py --dry-run
+
+# 도움말
+python scripts/install.py --help
 ```
 
-#### Fedora/RHEL
+### 설치 과정
 
-```bash
-# 1. 의존성 설치
-sudo dnf install python3 python3-pip git
+설치 스크립트는 다음을 수행합니다:
 
-# 2. 저장소 복제
-git clone https://github.com/YOUR-USERNAME/global-claude-rules.git
-cd global-claude-rules
+1. Claude 설정 디렉토리 확인 (`~/.claude`)
+2. Hooks 디렉토리 생성 (`~/.claude/hooks/moai/`)
+3. 전역 메모리 파일 설치 (`~/.claude/memory.md`)
+4. SessionStart Hook 설치
+5. PreTool Hook 설치 (규칙 강제)
+6. 템플릿 변수 치환
 
-# 3. 설치
-python3 scripts/install.py
 ```
+============================================================
+              Global Claude Rules Installer
+============================================================
 
-### macOS
+✓ Detected Script Directory
+✓ Detected Target Directory
+✓ Creating hooks directory...
+✓ Installing memory.md...
+✓ Installing session_start hook...
+✓ Installing pre_tool hook...
+✓ Installation complete!
 
-```bash
-# 1. Homebrew로 의존성 설치 (선택사항)
-brew install python3 git
-
-# 2. 저장소 복제
-git clone https://github.com/YOUR-USERNAME/global-claude-rules.git
-cd global-claude-rules
-
-# 3. 설치
-python3 scripts/install.py
+Next steps:
+1. Start a new Claude Code session
+2. Check for "Global Memory: N error rules" message
+3. Verify rules are loaded automatically
 ```
 
 ---
 
-## 설치 검증
+## 검증
 
-### 1단계: 파일 존재 확인
+### 1. 파일 존재 확인
 
-**Windows:**
-```powershell
-Test-Path $env:USERPROFILE\.claude\memory.md
-# Should return: True
-
-Test-Path $env:USERPROFILE\.claude\hooks\moai\session_start__show_project_info.py
-# Should return: True
-```
-
-**Linux/macOS:**
 ```bash
+# Windows
+dir %USERPROFILE%\.claude\memory.md
+dir %USERPROFILE%\.claude\hooks\moai\
+
+# Linux/macOS
 ls -la ~/.claude/memory.md
-# Should show the file
-
-ls -la ~/.claude/hooks/moai/session_start__show_project_info.py
-# Should show the file
+ls -la ~/.claude/hooks/moai/
 ```
 
-### 2단계: 내용 확인
+### 2. Claude Code 세션 시작
 
-```bash
-# 메모리 파일 내용 확인 (처음 20줄)
-head -n 20 ~/.claude/memory.md
-
-# Windows PowerShell:
-Get-Content $env:USERPROFILE\.claude\memory.md -Head 20
-```
-
-다음과 유사한 내용이 보여야 합니다:
-
-```
-# Global Development Memory - MANDATORY RULES
-
-**Last Updated**: 2026-02-05
-**Scope**: All Projects (Global)
-**Version**: 1.5
-```
-
-### 3단계: Claude Code 세션 시작 검증
-
-새 Claude Code 세션을 시작하면 다음과 같이 표시됩니다:
+새 Claude Code 세션을 시작하면 다음 메시지가 표시되어야 합니다:
 
 ```
 🚀 MoAI-ADK Session Started
-   📦 Version: 1.5.0
+   📦 Version: 1.6.0
    🔄 Changes: 0
    🌿 Branch: main
-   📚 Global Memory: 24 error rules (Last: 2026-02-05)
+   📚 Global Memory: 24 error rules (Last: 2026-02-06)
+```
+
+### 3. ERR 규칙 개수 확인
+
+```bash
+# ERR 규칙 개수 세기
+grep -c "### ERR-" ~/.claude/memory.md
+
+# 또는 (Windows)
+findstr /C:"### ERR-" %USERPROFILE%\.claude\memory.md
+```
+
+### 4. Hook 파일 검증
+
+```bash
+# Python 문법 확인
+python -m py_compile ~/.claude/hooks/moai/session_start__show_project_info.py
+python -m py_compile ~/.claude/hooks/moai/pre_tool__enforce_rules.py
+
+# 오류가 없으면 성공
 ```
 
 ---
 
 ## 환경 변수 설정
 
-### 선택적 환경 변수
+### 기본 경로
 
-| 변수 | 설명 | 기본값 |
-|------|------|--------|
-| `CLAUDE_CONFIG_DIR` | Claude 설정 디렉토리 | `~/.claude` |
-| `GLOBAL_CLAUDE_MEMORY` | 전역 메모리 파일 경로 | `~/.claude/memory.md` |
-| `GLOBAL_CLAUDE_GUIDE` | 전역 가이드 파일 경로 | `~/.claude/GLOBAL_RULES_GUIDE.md` |
+설치 후 파일 위치:
 
-### Windows 환경 변수 설정
+| 플랫폼 | 전역 메모리 | Hook 파일 |
+|--------|-------------|-----------|
+| Windows | `C:\Users\[user]\.claude\memory.md` | `C:\Users\[user]\.claude\hooks\moai\` |
+| Linux/macOS | `~/.claude/memory.md` | `~/.claude/hooks/moai/` |
 
-**현재 세션만 설정 (PowerShell):**
+### 환경 변수 오버라이드
+
+필요한 경우 환경 변수로 경로를 재정의할 수 있습니다.
+
+**Windows (PowerShell):**
 ```powershell
-$env:CLAUDE_CONFIG_DIR = "C:\Users\[user]\.claude"
-$env:GLOBAL_CLAUDE_MEMORY = "C:\Users\[user]\.claude\memory.md"
+# 영구 설정
+setx CLAUDE_CONFIG_DIR "C:\Users\%USERNAME%\.claude"
+setx GLOBAL_CLAUDE_MEMORY "C:\Users\%USERNAME%\.claude\memory.md"
+setx GLOBAL_CLAUDE_GUIDE "D:\GLOBAL_RULES_GUIDE.md"
+
+# 현재 세션에만 적용
+$env:CLAUDE_CONFIG_DIR = "C:\Users\$env:USERNAME\.claude"
 ```
 
-**영구 설정 (PowerShell):**
-```powershell
-# 시스템 환경 변수에 추가
-[System.Environment]::SetEnvironmentVariable('CLAUDE_CONFIG_DIR', 'C:\Users\[user]\.claude', 'User')
-[System.Environment]::SetEnvironmentVariable('GLOBAL_CLAUDE_MEMORY', 'C:\Users\[user]\.claude\memory.md', 'User')
-```
-
-### Linux/macOS 환경 변수 설정
-
-**현재 세션만 설정:**
+**Linux/macOS (bash/zsh):**
 ```bash
+# ~/.bashrc 또는 ~/.zshrc에 추가
 export CLAUDE_CONFIG_DIR="$HOME/.claude"
 export GLOBAL_CLAUDE_MEMORY="$HOME/.claude/memory.md"
-```
+export GLOBAL_CLAUDE_GUIDE="$HOME/.claude/GLOBAL_RULES_GUIDE.md"
 
-**영구 설정 (~/.bashrc 또는 ~/.zshrc):**
-```bash
-echo 'export CLAUDE_CONFIG_DIR="$HOME/.claude"' >> ~/.bashrc
-echo 'export GLOBAL_CLAUDE_MEMORY="$HOME/.claude/memory.md"' >> ~/.bashrc
-source ~/.bashrc
+# 변경 사항 적용
+source ~/.bashrc  # 또는 source ~/.zshrc
 ```
 
 ---
 
-## 설치 옵션
+## 선택적 기능
 
-### Dry-Run (변경 사항 미리보기)
+### 시맨틱 매칭 (Semantic Matching)
 
-실제로 파일을 수정하지 않고 변경 사항을 확인합니다:
+AI 기반 의미적 규칙 검색을 위해 추가 의존성을 설치하세요.
 
-```bash
-python scripts/install.py --dry-run
-```
-
-### 강제 재설치
-
-기존 파일을 덮어씁니다:
+#### 기본 설치 (CPU)
 
 ```bash
-python scripts/install.py --force
+pip install sentence-transformers numpy faiss-cpu
 ```
 
-### 버전 확인
+#### GPU 가속
 
 ```bash
-python scripts/install.py --version
+pip install sentence-transformers[gpu] faiss-gpu
 ```
+
+#### 의존성 요구사항
+
+| 패키지 | 최소 버전 | 용도 |
+|--------|----------|------|
+| sentence-transformers | 2.3.0 | 임베딩 생성 |
+| numpy | 1.24.0 | 벡터 연산 |
+| faiss-cpu | 1.7.4 | 벡터 검색 (CPU) |
+| faiss-gpu | 1.7.4 | 벡터 검색 (GPU) |
+
+#### 시맨틱 매칭 검증
+
+```bash
+# Python으로 테스트
+python -c "
+from sentence_transformers import SentenceTransformer
+print('Semantic matching available!')
+"
+```
+
+의존성이 설치되지 않은 경우 자동으로 기존 키워드 매칭으로 폴백됩니다.
 
 ---
 
 ## 문제 해결
 
-### 문제: "python 명령을 찾을 수 없습니다"
+### 문제: Python 모듈 없음
 
-**해결 방법:**
-
-**Windows:**
-```powershell
-# Python이 설치된 위치 확인
-where python
-
-# 또는 python3 사용
-python3 scripts/install.py
+```
+ModuleNotFoundError: No module named 'sentence_transformers'
 ```
 
-**Linux/macOS:**
+**해결:** 시맨틱 매칭은 선택 사항입니다. 기본 키워드 매칭이 자동으로 사용됩니다.
+
+### 문제: Hook 파일이 로딩되지 않음
+
+**증상:** 세션 시작 시 "Global Memory" 메시지가 표시되지 않음
+
+**해결:**
 ```bash
-# python3 사용
-python3 scripts/install.py
+# 1. Hook 디렉토리 확인
+ls ~/.claude/hooks/moai/
 
-# 또는 python 명령어 생성
-sudo ln -sf /usr/bin/python3 /usr/bin/python
-```
+# 2. Hook 파일 존재 확인
+ls ~/.claude/hooks/moai/session_start__show_project_info.py
 
-### 문제: "권한 거부" 오류
-
-**해결 방법:**
-
-**Linux/macOS:**
-```bash
-# 스크립트에 실행 권한 부여
-chmod +x scripts/install.py
-
-# 또는 python으로 직접 실행
-python3 scripts/install.py
-```
-
-**Windows:**
-```powershell
-# PowerShell 실행 정책 변경
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
-
-### 문제: Hook 파일이 실행되지 않음
-
-**해결 방법:**
-
-```bash
-# Hook 디렉토리 확인
-ls -la ~/.claude/hooks/moai/
-
-# 디렉토리가 없는 경우 재설치
+# 3. 재설치
 python scripts/install.py --force
-
-# 파일이 있는 경우 실행 권한 확인
-chmod +x ~/.claude/hooks/moai/*.py
 ```
 
-### 문제: Git 인증 오류
+### 문제: 권한 오류
 
-**해결 방법:**
+**증상:** Permission denied when writing to `~/.claude`
+
+**해결:**
+```bash
+# Linux/macOS
+chmod 755 ~/.claude
+chmod 755 ~/.claude/hooks
+chmod 755 ~/.claude/hooks/moai
+
+# 재설치
+python scripts/install.py --force
+```
+
+### 문제: Windows에서 ANSI 색상 안 보임
+
+**증상:** 색상 코드가 문자 그대로 표시됨
+
+**해결:** Windows 10+에서 PowerShell을 사용하거나, Windows Terminal을 설치하세요.
+
+### 문제: 경로에 한글이 있어서 오류 발생
+
+**증상:** UnicodeEncodeError 또는 파일 찾기 오류
+
+**해결:** 설치 경로에 ASCII 문자만 사용하거나, 영문 경로로 설치하세요.
+
+---
+
+## 제거
+
+시스템에서 Global Claude Rules를 제거하려면:
 
 ```bash
-# Git 자격 증명 설정
-git config --global credential.helper store
+# 완전 제거
+python scripts/uninstall.py
 
-# 또는 SSH 키 사용
-ssh-keygen -t ed25519 -C "your_email@example.com"
-# SSH 퍼블릭 키를 GitHub 계정에 추가
-```
-
-### 문제: UTF-8 인코딩 오류 (Windows)
-
-**해결 방법:**
-
-```powershell
-# PowerShell UTF-8 설정
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-$env:PYTHONIOENCODING = "utf-8"
-
-# 또는 시스템 UTF-8 설정 (Windows 10 1903+)
-# 설정 > 시간 및 언어 > 언어 > 관리용 언어 설정 >
-# 시스템 로캘 변경 > 베타: Unicode UTF-8 전역 언어 지원 사용
+# 메모리 파일 유지
+python scripts/uninstall.py --keep-memory
 ```
 
 ---
@@ -431,16 +314,10 @@ $env:PYTHONIOENCODING = "utf-8"
 
 설치가 완료되면:
 
-1. **[사용 가이드](USAGE.md)** - 규칙 추가, 검증, 업데이트 방법 학습
-2. **[기여 가이드](CONTRIBUTING.md)** - 새 규칙 제출 방법 학습
+1. [사용 가이드](USAGE.md)를 참조하여 규칙을 추가해 보세요
+2. [마이그레이션 가이드](MIGRATION.md)를 확인하여 기존 설치를 업그레이드하세요
+3. [기여 가이드](CONTRIBUTING.md)를 참조하여 새 규칙을 제출하세요
 
 ---
 
-## 추가 도움말
-
-- **GitHub Issues**: https://github.com/YOUR-USERNAME/global-claude-rules/issues
-- **문서**: [README.md](../README.md)
-
----
-
-**마지막 업데이트**: 2026-02-05
+**버전**: 1.6.0 | **최종 업데이트**: 2026-02-06

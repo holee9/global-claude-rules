@@ -104,7 +104,8 @@ class TestInstallScript(unittest.TestCase):
 
         # Check for key sections
         self.assertIn("ERR-", content)
-        self.assertIn("## Error Prevention System", content)
+        # The actual header is "## 1. Error Prevention System (EPS)"
+        self.assertIn("Error Prevention System", content)
         self.assertIn("ERR-001:", content)
 
     def test_template_hook_exists(self):
